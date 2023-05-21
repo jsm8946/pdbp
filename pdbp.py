@@ -2,7 +2,7 @@
 
 '''
 About PDBP:
-PBDP(current version 1.0-alpha) is an open-source tool,
+PBDP(current version 1.0-alpha.1) is an open-source tool,
 available on Github as jsm8946's work.
 
 Requirements: 
@@ -129,36 +129,34 @@ def getData(text):
     line = "[" + t + "] " + tc.colored(text, WHITE)
     return input(line)
 
+def getArgvData(index, message):
+    if len(sys.argv) > index:
+        return sys.argv[index]
+    else:
+        return str(getData(message))
+
 def getCredentials():
-    try:
-        yield str(sys.argv[1])
-    except IndexError:
-        yield str(getData("Enter database host: "))
-    
+    # sys.argv contains all necessary Python arguments.
+    # The 0th(aka. 1st) is the filename.
+    # The following ones are passed like:
+    # py -3 foo.py(0th) bar(1st) lorem(2nd)
+
+    yield getArgvData(1, "Enter database host: ")
+        
     port = str(getData("Enter database port(empty for 3306): "))
     if bool(port):
         yield str(port)
     else:
         yield "3306"
     
-    try:
-        yield str(sys.argv[2])
-    except IndexError:
-        yield str(getData("Enter database username: "))
-    
-    try:
-        yield str(sys.argv[3])
-    except IndexError:
-        yield str(getData("Enter database password: "))
-    
-    try:
-        yield str(sys.argv[4])
-    except:
-        db = getData("Enter database name(optional): ")
-        if not bool(db):
-            yield None
-        else:
-            yield str(db)
+    yield getArgvData(2, "Enter database username: ")
+    yield getArgvData(3, "Enter database password: ")
+    db = getArgvData(4, "Enter database name(optional): ")
+
+    if not bool(db):
+        yield None
+    else:
+        yield db
 
 def connect():
     global dbcon
@@ -215,8 +213,9 @@ def query(q):
         sys.exit()
     
     try:
-        cmdline("Executing the query...", GRAY)
-        randomDelay(5000, 15000)
+        if not q.upper() == "COMMIT":
+            cmdline("Executing the query...", GRAY)
+            randomDelay(5000, 15000)
         cursor.execute(q)
     except Exception as e:
         cmdline("Error while executing query.", RED)
@@ -225,20 +224,28 @@ def query(q):
         randomDelay(100, 400)
         return
     
-    cmdline("Query successful.", GREEN)
-    randomDelay(100, 400)
+    if not q.upper() == "COMMIT":
+        cmdline("Query successful.", GREEN)
+        randomDelay(100, 400)
     for x in cursor:
         cmdline(x, BLUE)
         randomDelay(100, 200)
 
 def main():
-    while True:       
-        cmdline("Type ABORT to abort this connection.", BLUE)
-        randomDelay(200, 500)
-        cmdline("DONE ends the program.", BLUE)
-        randomDelay(200, 500)
+    while True: 
+        try:      
+            cmdline("Type ABORT to abort this connection.", BLUE)
+            randomDelay(200, 500)
+            cmdline("DONE ends the program.", BLUE)
+            randomDelay(200, 500)
 
-        q = str(getData("Enter your query here: "))
-        query(q)
+            q = str(getData("Enter your query here: "))
+            query(q)
+        except KeyboardInterrupt:
+            query("COMMIT")
+            sys.exit()
+        except SystemExit:
+            query("COMMIT")
+            sys.exit()
 
 main()
