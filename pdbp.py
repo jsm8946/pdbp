@@ -5,6 +5,9 @@ About PDBP:
 PBDP(current version 1.0-alpha.1) is an open-source tool,
 available on Github as jsm8946's work.
 
+License:
+This software is licensed under GNU General Public License v3.0.
+
 Requirements: 
 Python, pip, MySQL
 
