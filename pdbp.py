@@ -2,7 +2,7 @@
 
 '''
 About PDBP:
-PBDP(current version 1.0-alpha.1) is an open-source tool,
+PBDP(current version 1.0-beta) is an open-source tool,
 available on Github as jsm8946's work.
 
 License:
